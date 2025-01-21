@@ -5,12 +5,22 @@ locals {
     NOT try to create these resources again and associate them with other workspace's states.
    */
   resource_count   = terraform.workspace == "default" ? 1 : 0
-  env_file_content = data.aws_s3_object.env_file.body
-  env_lines        = split("\n", local.env_file_content)
 
-  env = {
-    for line in local.env_lines :
+  # Dev environment variables setup
+  dev_env_file_content = data.aws_s3_object.dev_env_file.body
+  dev_env_lines        = split("\n", local.dev_env_file_content)
+  dev_env = {
+    for line in local.dev_env_lines :
     trimspace(split("=", line)[0]) => trimspace(replace(split("=", line)[1], "^\\\"|\\\"$", "")) # Strip leading and trailing quotes
+    if line != "" && !startswith(line, "#")
+  }
+
+  # Staging environment variables setup
+  staging_env_file_content = data.aws_s3_object.staging_env_file.body
+  staging_env_lines        = split("\n", local.staging_env_file_content)
+  staging_env = {
+    for line in local.staging_env_lines :
+    trimspace(split("=", line)[0]) => trimspace(replace(split("=", line)[1], "^\\\"|\\\"$", ""))
     if line != "" && !startswith(line, "#")
   }
 }
@@ -46,9 +56,19 @@ resource "aws_s3_bucket_versioning" "terraform_state_bucket_versioning" {
   }
 }
 
-module "vpc" {
+# VPCs config
+module "dev_vpc" {
   source                    = "./modules/vpc"
-  vpc_cidr_block            = local.env["vpc_cidr_block"]
-  private_subnet_cidr_block = local.env["private_subnet_cidr_block"]
-  public_subnet_cidr_block  = local.env["public_subnet_cidr_block"]
+  vpc_cidr_block            = local.dev_env["vpc_cidr_block"]
+  private_subnet_cidr_block = local.dev_env["private_subnet_cidr_block"]
+  public_subnet_cidr_block  = local.dev_env["public_subnet_cidr_block"]
+  env                       = local.dev_env["name"]
+}
+
+module "staging_vpc" {
+  source                    = "./modules/vpc"
+  vpc_cidr_block            = local.staging_env["vpc_cidr_block"]
+  private_subnet_cidr_block = local.staging_env["private_subnet_cidr_block"]
+  public_subnet_cidr_block  = local.staging_env["public_subnet_cidr_block"]
+  env                       = local.staging_env["name"]
 }

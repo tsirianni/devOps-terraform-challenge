@@ -12,3 +12,8 @@ variable "public_subnet_cidr_block" {
   type        = string
   description = "The CIDR block for the Public Subnet"
 }
+
+variable "env" {
+  description = "The environment name (dev, staging, prod)"
+  type        = string
+}

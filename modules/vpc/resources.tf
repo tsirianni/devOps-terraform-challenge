@@ -4,11 +4,13 @@ resource "aws_vpc" "main" {
   tags = {
     Iac     = true
     IacTool = "Terraform"
+    Name    = "${var.env}-vpc"
   }
 
   tags_all = {
     Iac     = true
     IacTool = "Terraform"
+    Name    = "${var.env}-vpc"
   }
 }
 
@@ -18,15 +20,17 @@ resource "aws_subnet" "main_private" {
   cidr_block = var.private_subnet_cidr_block
 
   tags = {
-    Iac     = true
-    IacTool = "Terraform"
+    Iac        = true
+    IacTool    = "Terraform"
     SubnetType = "Private"
+    Name       = "${var.env}-private-subnet"
   }
 
   tags_all = {
-    Iac     = true
-    IacTool = "Terraform"
+    Iac        = true
+    IacTool    = "Terraform"
     SubnetType = "Private"
+    Name       = "${var.env}-private-subnet"
   }
 }
 
@@ -36,14 +40,16 @@ resource "aws_subnet" "main_public" {
   cidr_block = var.public_subnet_cidr_block
 
   tags = {
-    Iac     = true
-    IacTool = "Terraform"
+    Iac        = true
+    IacTool    = "Terraform"
     SubnetType = "Public"
+    Name       = "${var.env}-public-subnet"
   }
 
   tags_all = {
-    Iac     = true
-    IacTool = "Terraform"
+    Iac        = true
+    IacTool    = "Terraform"
     SubnetType = "Public"
+    Name       = "${var.env}-public-subnet"
   }
 }
